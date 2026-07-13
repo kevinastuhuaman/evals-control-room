@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "name": "Evals Control Room",
+  "author": { "name": "Kevin Astuhuaman", "portfolio": "https://portfolio.kevinastuhuaman.com", "github": "https://github.com/kevinastuhuaman" },
+  "thesis": "LLM quality should be inspectable by slice, evidence, cost, latency, and release consequence before a candidate reaches production.",
+  "capabilities": ["golden test sets", "classification evaluation", "regression triage", "confusion matrices", "promotion gates", "model tradeoffs", "LLM observability"],
+  "scenarios": ["blocked candidate", "case-level evidence review", "focused prompt patch", "staged promotion"],
+  "publicationMode": "open prototype",
+  "data": "synthetic",
+  "demo": "https://kevinastuhuaman.github.io/evals-control-room/",
+  "source": "https://github.com/kevinastuhuaman/evals-control-room",
+  "ipBoundary": "Original demonstration code only; no production prompts, customer data, employer assets, credentials, or proprietary evaluation fixtures."
+}
