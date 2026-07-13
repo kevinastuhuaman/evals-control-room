@@ -1,0 +1,136 @@
+---
+import { Activity, ArrowRight, ChartNoAxesColumnIncreasing, Check, ChevronDown, CircleAlert, Clock3, CodeXml, Database, FlaskConical, GitCompare, LockKeyhole, Play, Search, ShieldCheck, Sparkles, X } from "@lucide/astro";
+import { candidateCases, suites } from "../data/evals";
+import "../styles/global.css";
+
+const description = "An interactive LLM evaluation control room for regression triage, model tradeoffs, and promotion gates.";
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Evals Control Room | Kevin Astuhuaman</title>
+    <meta name="description" content={description} />
+    <meta name="author" content="Kevin Astuhuaman" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href="https://kevinastuhuaman.github.io/evals-control-room/" />
+    <link rel="alternate" type="text/plain" href="https://kevinastuhuaman.github.io/evals-control-room/llms.txt" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Evals Control Room" />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="https://kevinastuhuaman.github.io/evals-control-room/social-preview.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify({ "@context": "https://schema.org", "@type": "SoftwareSourceCode", name: "Evals Control Room", description, codeRepository: "https://github.com/kevinastuhuaman/evals-control-room", author: { "@type": "Person", name: "Kevin Astuhuaman", url: "https://portfolio.kevinastuhuaman.com" }, programmingLanguage: ["TypeScript", "Astro"] })}></script>
+  </head>
+  <body>
+    <main class="app" data-app data-version="candidate">
+      <h1 class="sr-only">Evals Control Room</h1>
+      <header class="topbar">
+        <div class="brand"><span class="brand-mark"><FlaskConical size={18} /></span><span><strong>Evals Control Room</strong><small>Public-safe prototype</small></span></div>
+        <div class="suite-title"><span>Job function classifier</span><strong>Golden set / release gate</strong></div>
+        <div class="top-actions">
+          <label class="version-select"><span class="sr-only">Candidate version</span><select data-version-select><option value="candidate">Prompt v18 · Model Beta</option><option value="patched">Prompt v19 · Model Beta</option></select><ChevronDown size={14} /></label>
+          <button class="run-button" type="button" data-run><Play size={15} fill="currentColor" /><span data-run-label>Run evals</span></button>
+        </div>
+      </header>
+
+      <nav class="mobile-tabs" aria-label="Control room views">
+        <button type="button" data-view-button="results" aria-pressed="true">Results</button>
+        <button type="button" data-view-button="evidence" aria-pressed="false">Evidence</button>
+        <button type="button" data-view-button="gate" aria-pressed="false">Gate</button>
+      </nav>
+
+      <div class="workspace">
+        <aside class="suite-nav" aria-label="Evaluation suites">
+          <div class="nav-heading"><span>Evaluation suites</span><strong>Classifier quality</strong></div>
+          <label class="search"><Search size={14} /><span class="sr-only">Search suites</span><input type="search" placeholder="Search suites" /></label>
+          <div class="suite-list">
+            {suites.map(([name, count], index) => <button type="button" class:list={["suite-item", { active: index === 0 }]} disabled={index !== 0}><span class="suite-icon"><Database size={15} /></span><span><strong>{name}</strong><small>{count}</small></span>{index === 0 && <ArrowRight size={14} />}</button>)}
+          </div>
+          <div class="fixture-note"><ShieldCheck size={16} /><span><strong>Golden set locked</strong><small>240 curated synthetic cases · v7</small></span></div>
+        </aside>
+
+        <section class="results" data-panel="results" aria-label="Evaluation results">
+          <div class="status-strip">
+            <div><span class="gate-dot" data-gate-dot></span><span><small>Promotion gate</small><strong data-gate-title>Blocked by 3 regressions</strong></span></div>
+            <span class="run-meta"><Clock3 size={14} /> <span data-run-meta>Last run · 4m ago · deterministic fixture</span></span>
+          </div>
+
+          <div class="metrics" aria-label="Candidate metrics">
+            <article><span>Overall accuracy</span><strong data-accuracy>94.2%</strong><small data-accuracy-note>Target 95.0% · -1.6 pp</small></article>
+            <article><span>Edge-case F1</span><strong data-f1>81.4%</strong><small data-f1-note>Target 88.0% · -7.1 pp</small></article>
+            <article><span>Cost / 1K</span><strong>$0.84</strong><small class="positive">18% below baseline</small></article>
+            <article><span>p95 latency</span><strong>620 ms</strong><small class="positive">Within 800 ms budget</small></article>
+          </div>
+
+          <div class="result-grid">
+            <section class="regressions-panel">
+              <div class="panel-title"><span><GitCompare size={16} /><strong>Regression triage</strong></span><label>Slice <select data-slice><option value="all">All cases</option><option value="fail">Regressions</option><option value="technical">Technical product</option></select></label></div>
+              <div class="table-wrap"><table><thead><tr><th>Case</th><th>Slice</th><th>Expected</th><th>Actual</th><th>Confidence</th><th><span class="sr-only">Result</span></th></tr></thead><tbody data-case-table>
+                {candidateCases.map((item) => <tr data-case={item.id} data-status={item.status} data-slice-name={item.slice}><td><button type="button" class="case-link" data-open-case={item.id}><strong>{item.id}</strong><span>{item.title}</span></button></td><td>{item.slice}</td><td><span class="label neutral">{item.expected}</span></td><td><span class:list={["label", item.status]} data-actual>{item.actual}</span></td><td data-confidence>{item.confidence.toFixed(2)}</td><td><span class:list={["result-icon", item.status]}>{item.status === "pass" ? <Check size={14} /> : <X size={14} />}</span></td></tr>)}
+              </tbody></table></div>
+            </section>
+
+            <section class="matrix-panel">
+              <div class="panel-title"><span><ChartNoAxesColumnIncreasing size={16} /><strong>Confusion matrix</strong></span><small>Selected slice</small></div>
+              <div class="matrix" data-matrix>
+                <span></span><span class="axis">Product</span><span class="axis">Engineering</span><span class="axis">Operations</span>
+                <span class="axis row">Product</span><strong class="good" data-cell="pp">146</strong><strong data-cell="pe">1</strong><strong class="bad" data-cell="po">2</strong>
+                <span class="axis row">Engineering</span><strong data-cell="ep">0</strong><strong class="good" data-cell="ee">41</strong><strong data-cell="eo">0</strong>
+                <span class="axis row">Operations</span><strong class="bad" data-cell="op">1</strong><strong data-cell="oe">0</strong><strong class="good" data-cell="oo">49</strong>
+              </div>
+              <div class="matrix-legend"><span><i class="good"></i>Correct</span><span><i class="bad"></i>Regression</span></div>
+            </section>
+          </div>
+        </section>
+
+        <aside class="evidence" data-panel="evidence" aria-label="Case evidence">
+          <div class="evidence-header"><span class="evidence-icon"><CircleAlert size={17} /></span><span><small data-case-status>Failed case</small><strong data-case-id>E-104</strong></span><button type="button" class="icon-button mobile-only" data-view-button="results" aria-label="Close evidence"><X size={16} /></button></div>
+          <div class="evidence-body">
+            <section><span class="eyebrow">Synthetic input</span><strong data-case-title>Founding Product Lead, AI Workflows</strong><p>Own the roadmap for an enterprise agent builder, partner with engineering, and turn customer workflow pain into a clear product direction.</p></section>
+            <section><span class="eyebrow">Judgment</span><div class="comparison"><span><small>Expected</small><strong data-expected>Product</strong></span><ArrowRight size={15} /><span><small>Candidate</small><strong class="wrong" data-actual-detail>Operations</strong></span></div></section>
+            <section><span class="eyebrow">Error analysis</span><p data-reason>The prompt over-weighted the word workflows and ignored ownership language.</p></section>
+            <section><span class="eyebrow">Rubric trace</span><ol class="rubric"><li class="pass"><span class="rubric-mark">OK</span><span>Explicit roadmap ownership found</span></li><li class="fail"><span class="rubric-mark">X</span><span>Domain token over-weighted</span></li><li class="fail"><span class="rubric-mark">X</span><span>Ownership evidence not prioritized</span></li></ol></section>
+          </div>
+        </aside>
+
+        <aside class="gate" data-panel="gate" aria-label="Promotion gate">
+          <div class="gate-header"><LockKeyhole size={17} /><span><small>Release decision</small><strong data-gate-heading>Candidate blocked</strong></span></div>
+          <div class="criteria"><div data-criterion="accuracy"><span class="criterion-mark">X</span><span><strong>Accuracy ≥ 95%</strong><small>94.2%</small></span></div><div data-criterion="f1"><span class="criterion-mark">X</span><span><strong>Edge-case F1 ≥ 88%</strong><small>81.4%</small></span></div><div class="met"><span class="criterion-mark">OK</span><span><strong>Cost within budget</strong><small>$0.84 / 1K</small></span></div><div class="met"><span class="criterion-mark">OK</span><span><strong>Latency within budget</strong><small>620 ms p95</small></span></div></div>
+          <div class="decision-note"><Sparkles size={16} /><span><strong>Suggested next step</strong><small data-suggestion>Add an ownership-first rubric and rerun only affected slices.</small></span></div>
+          <button class="patch-button" type="button" data-patch><CodeXml size={15} /> Apply prompt patch v19</button>
+          <button class="promote-button" type="button" data-promote disabled><Check size={15} /> Promote candidate</button>
+          <p class="public-note">Deterministic synthetic data. No production prompts or employer assets.</p>
+        </aside>
+      </div>
+      <footer><span><Activity size={13} /> Golden set v7 · 240 cases</span><a href="https://github.com/kevinastuhuaman/evals-control-room">Source</a><a href="https://portfolio.kevinastuhuaman.com">Kevin Astuhuaman</a></footer>
+    </main>
+
+    <script>
+      import { candidateCases, patchedCases } from "../data/evals";
+      const app = document.querySelector<HTMLElement>("[data-app]")!;
+      const byId = (id: string, patched = app.dataset.version === "patched") => (patched ? patchedCases : candidateCases).find((item) => item.id === id);
+      function setView(view: string) { app.dataset.view = view; app.querySelectorAll("[data-view-button]").forEach((button) => button.setAttribute("aria-pressed", String(button.getAttribute("data-view-button") === view))); }
+      function openCase(id: string) { const item = byId(id); if (!item) return; app.querySelector("[data-case-id]")!.textContent = item.id; app.querySelector("[data-case-status]")!.textContent = item.status === "pass" ? "Recovered case" : "Failed case"; app.querySelector("[data-case-title]")!.textContent = item.title; app.querySelector("[data-expected]")!.textContent = item.expected; const actual = app.querySelector<HTMLElement>("[data-actual-detail]")!; actual.textContent = item.actual; actual.classList.toggle("wrong", item.status === "fail"); app.querySelector("[data-reason]")!.textContent = item.reason; const rubric = [...app.querySelectorAll<HTMLElement>(".rubric li")]; const recovered = ["Ownership evidence prioritized", "Domain token treated as context", "Expected output recovered"]; rubric.forEach((row, index) => { const passed = item.status === "pass" || index === 0; row.className = passed ? "pass" : "fail"; row.querySelector(".rubric-mark")!.textContent = passed ? "OK" : "X"; if (item.status === "pass") row.querySelector("span:last-child")!.textContent = recovered[index]; }); setView("evidence"); }
+      function renderVersion(version: "candidate" | "patched") {
+        app.dataset.version = version; const patched = version === "patched"; const cases = patched ? patchedCases : candidateCases;
+        app.querySelectorAll<HTMLElement>("[data-case]").forEach((row) => { const item = cases.find((entry) => entry.id === row.dataset.case); if (!item) return; row.dataset.status = item.status; row.querySelector("[data-actual]")!.textContent = item.actual; row.querySelector("[data-actual]")!.className = `label ${item.status}`; row.querySelector("[data-confidence]")!.textContent = item.confidence.toFixed(2); const result = row.querySelector(".result-icon")!; result.className = `result-icon ${item.status}`; result.innerHTML = item.status === "pass" ? "OK" : "X"; });
+        app.querySelector("[data-accuracy]")!.textContent = patched ? "97.1%" : "94.2%"; app.querySelector("[data-f1]")!.textContent = patched ? "91.2%" : "81.4%"; app.querySelector("[data-accuracy-note]")!.textContent = patched ? "Target 95.0% · +1.3 pp" : "Target 95.0% · -1.6 pp"; app.querySelector("[data-f1-note]")!.textContent = patched ? "Target 88.0% · +2.7 pp" : "Target 88.0% · -7.1 pp";
+        app.querySelector("[data-gate-title]")!.textContent = patched ? "All release criteria met" : "Blocked by 3 regressions"; app.querySelector("[data-gate-heading]")!.textContent = patched ? "Candidate ready" : "Candidate blocked"; app.querySelector("[data-suggestion]")!.textContent = patched ? "The focused patch recovered failed slices without exceeding cost or latency budgets." : "Add an ownership-first rubric and rerun only affected slices.";
+        ["accuracy", "f1"].forEach((key) => { const node = app.querySelector<HTMLElement>(`[data-criterion="${key}"]`)!; node.classList.toggle("met", patched); node.classList.toggle("failed", !patched); node.querySelector(".criterion-mark")!.textContent = patched ? "OK" : "X"; node.querySelector("small")!.textContent = key === "accuracy" ? (patched ? "97.1%" : "94.2%") : (patched ? "91.2%" : "81.4%"); });
+        const promote = app.querySelector<HTMLButtonElement>("[data-promote]")!; promote.disabled = !patched; const patch = app.querySelector<HTMLButtonElement>("[data-patch]")!; patch.hidden = patched; app.querySelector<HTMLSelectElement>("[data-version-select]")!.value = version;
+        openCase("E-104"); setView("results");
+      }
+      app.querySelectorAll("[data-open-case]").forEach((button) => button.addEventListener("click", () => openCase(button.getAttribute("data-open-case") || "E-104")));
+      app.querySelectorAll("[data-view-button]").forEach((button) => button.addEventListener("click", () => setView(button.getAttribute("data-view-button") || "results")));
+      app.querySelector("[data-patch]")?.addEventListener("click", () => renderVersion("patched"));
+      app.querySelector<HTMLSelectElement>("[data-version-select]")?.addEventListener("change", (event) => renderVersion((event.currentTarget as HTMLSelectElement).value as "candidate" | "patched"));
+      app.querySelector("[data-run]")?.addEventListener("click", async () => { const label = app.querySelector("[data-run-label]")!; label.textContent = "Running"; await new Promise((resolve) => setTimeout(resolve, 500)); label.textContent = "Run evals"; app.querySelector("[data-run-meta]")!.textContent = "Just now · deterministic fixture"; });
+      app.querySelector<HTMLSelectElement>("[data-slice]")?.addEventListener("change", (event) => { const value = (event.currentTarget as HTMLSelectElement).value; app.querySelectorAll<HTMLElement>("[data-case]").forEach((row) => { row.hidden = value === "fail" ? row.dataset.status !== "fail" : value === "technical" ? row.dataset.sliceName !== "Technical product" : false; }); });
+      app.querySelector("[data-promote]")?.addEventListener("click", () => { app.querySelector("[data-gate-title]")!.textContent = "Promoted to staged rollout"; app.querySelector("[data-gate-heading]")!.textContent = "Staged rollout approved"; });
+      setView("results");
+    </script>
+  </body>
+</html>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kevinastuhuaman.github.io/evals-control-room/sitemap.xml
