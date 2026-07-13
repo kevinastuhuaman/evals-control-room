@@ -24,6 +24,6 @@ export const candidateCases: EvalCase[] = [
   { id: "E-151", title: "AI Solutions Product Manager", slice: "Technical product", expected: "Product", actual: "Product", status: "pass", confidence: 0.91, reason: "Solutions context is subordinate to explicit product ownership." },
 ];
 
-export const patchedCases: EvalCase[] = candidateCases.map((item) =>
+export const patchedCases: EvalCase[] = candidateCases.map((item): EvalCase =>
   item.status === "fail" ? { ...item, actual: item.expected, status: "pass", confidence: Math.max(item.confidence, 0.89), reason: "The patched rubric prioritizes ownership evidence before domain tokens." } : item,
 );
